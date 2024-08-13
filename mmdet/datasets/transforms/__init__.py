@@ -23,6 +23,9 @@ from .transforms import (Albu, CachedMixUp, CachedMosaic, CopyPaste, CutOut,
                          RandomFlip, RandomShift, Resize, ResizeShortestEdge,
                          SegRescale, YOLOXHSVRandomAug)
 from .wrappers import MultiBranch, ProposalBroadcaster, RandomOrder
+# register BONAI mudule
+from .load_loft import LoadLoft
+from .transforms_loft import ResizeLoft, FlipLoft, PackLoft
 
 __all__ = [
     'PackDetInputs', 'ToTensor', 'ImageToTensor', 'Transpose',
@@ -41,5 +44,6 @@ __all__ = [
     'LoadTrackAnnotations', 'BaseFrameSample', 'UniformRefFrameSample',
     'PackTrackInputs', 'PackReIDInputs', 'FixScaleResize',
     'ResizeShortestEdge', 'GTBoxSubOne_GLIP', 'RandomFlip_GLIP',
-    'RandomSamplingNegPos', 'LoadTextAnnotations'
+    'RandomSamplingNegPos', 'LoadTextAnnotations', 'LoadLoft', 'ResizeLoft',
+    'FlipLoft', 'PackLoft'
 ]
