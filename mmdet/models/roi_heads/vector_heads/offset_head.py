@@ -6,11 +6,12 @@ import numpy as np
 
 from mmengine.config import ConfigDict
 from mmengine.model import BaseModule, ModuleList
+from mmengine.structures import InstanceData
 from torch import Tensor
 from torch.nn.modules.utils import _pair
 from mmdet.models.task_modules.samplers import SamplingResult
 from mmdet.utils import ConfigType, InstanceList, OptConfigType, OptMultiConfig
-from mmdet.registry import MODELS
+from mmdet.registry import MODELS, TASK_UTILS
 from mmdet.structures.mask import mask_target
 
 from mmcv.ops import Conv2d
@@ -28,6 +29,7 @@ class OffsetHead(BaseModule):
                  conv_out_channels=256,
                  fc_out_channels=1024,
                  offset_coordinate='rectangle',
+                 offset_coder=dict(type='DeltaXYOffsetCoder'),
                  reg_decoded_offset=False,
                  conv_cfg=None,
                  norm_cfg=None,
@@ -44,7 +46,7 @@ class OffsetHead(BaseModule):
         self.norm_cfg = norm_cfg
 
         # Build offset coder and offset loss calculator
-        # self.offset_coder = MODELS.build(offset_coder)
+        self.offset_coder = TASK_UTILS.build(offset_coder)
         self.loss_offset = MODELS.build(loss_offset)
 
         # Build convolution layers
@@ -186,3 +188,17 @@ class OffsetHead(BaseModule):
         loss['loss_offset'] = loss_offset
         return dict(loss_offset=loss, offset_targets=offset_targets)
 
+    def predict_by_feat(self,
+                        offset_preds: Tuple[Tensor],
+                        results_list: List[InstanceData],
+                        batch_img_metas: List[dict],
+                        rcnn_test_cfg: ConfigDict,
+                        rescale: bool = False,
+                        activate_map: bool = False) -> InstanceList:
+        assert len(offset_preds) == len(results_list) == len(batch_img_metas)
+
+        for img_id in range(len(batch_img_metas)):
+            results = results_list[img_id]
+            offset_pred = self.offset_coder.decode(results['bboxes'], offset_preds[img_id])
+            results.offsets = offset_pred
+        return results_list

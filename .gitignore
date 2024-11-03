@@ -118,7 +118,6 @@ mmdet/.mim
 work_dirs/
 
 # Pytorch
-*.pth
 *.py~
 *.sh~
 outputs/preds/demo.json

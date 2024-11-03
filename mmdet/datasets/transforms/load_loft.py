@@ -19,7 +19,10 @@ class LoadLoft(LoadAnnotations):
         gt_bboxes_offsets = []
         for instance in results.get('instances', []):
             gt_bboxes_offsets.append(instance['offset'])
-        results['gt_offsets'] = np.array(gt_bboxes_offsets, dtype=np.int64)
+        if gt_bboxes_offsets:
+            results['gt_offsets'] = np.array(gt_bboxes_offsets, dtype=np.int64)
+        else:
+            results['gt_offsets'] = np.zeros((0, 2), dtype=np.int64)
 
     def __repr__(self) -> str:
         repr_str = self.__class__.__name__

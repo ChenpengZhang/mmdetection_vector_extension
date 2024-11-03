@@ -207,3 +207,49 @@ class LoftRoIHead(StandardRoIHead):
         # 返回预测结果和offset特征张量
         offset_results = dict(offset_preds=offset_preds, offset_feats=offset_feats)
         return offset_results
+
+    def predict(self,
+                x: Tuple[Tensor],
+                rpn_results_list: InstanceList,
+                batch_data_samples: SampleList,
+                rescale: bool = False) -> InstanceList:
+        # 先调用父类方法计算好所有的bbox和mask预测量
+        results_list = super().predict(x, rpn_results_list, batch_data_samples, rescale)
+        batch_img_metas = [
+            data_samples.metainfo for data_samples in batch_data_samples
+        ]
+        if self.with_offset:
+            results_list = self.predict_offset(x, batch_img_metas, results_list, rescale)
+        return results_list
+
+    def predict_offset(self,
+                       x: Tuple[Tensor],
+                       batch_img_metas: List[dict],
+                       results_list: InstanceList,
+                       rescale: bool = False) -> InstanceList:
+        bboxes = [res.bboxes for res in results_list]
+        offset_rois = bbox2roi(bboxes)
+
+        if offset_rois.shape[0] == 0:
+            results_list = empty_instances(
+                batch_img_metas,
+                offset_rois.device,
+                task_type='mask',
+                instance_results=results_list)
+            return results_list
+
+        offset_results = self._offset_forward(x, offset_rois)
+        # 计算预测结果和gt的iou
+        offset_preds = offset_results['offset_preds']
+        num_offset_rois_per_img = [len(res) for res in results_list]
+        offset_preds = offset_preds.split(num_offset_rois_per_img, 0)
+
+        results_list = self.offset_head.predict_by_feat(
+            offset_preds=offset_preds,
+            results_list=results_list,
+            batch_img_metas=batch_img_metas,
+            rcnn_test_cfg=self.test_cfg,
+            rescale=rescale)
+
+        return results_list
+
