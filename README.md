@@ -11,8 +11,8 @@ python vec_demo/inferencer/inferenceBonai.py
 ```
 * If you want to train/test this model locally, you can choose to use one of the two models in vec_demo/configs/ for training. Please change the paths for the training images and annotations before training.
 ```shell
-python tools/train.py vec_demo/configs/bonaiConf.py
-python tools/test.py vec_demo/configs/bonaiConf.py """(checkpoint location)""" --show
+python tools/train.py vec_demo/configs/loft_r50_fpn_25x_bonai.py
+python tools/test.py vec_demo/configs/loft_r50_fpn_25x_bonai.py """(checkpoint location)""" --show
 ```
 * Additionally, please note that the complete documentation for this project has not yet been written. Most of the code has been migrated from MMDetection, so please read the documentation of MMDetection first.
 * You can check the specific core code location directly in the commit history, which includes information on changes to the core codebase. You can review the specific logic of the model and see which components have been added.

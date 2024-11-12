@@ -45,6 +45,7 @@ from .rtmdet_ins_head import RTMDetInsHead, RTMDetInsSepBNHead
 from .sabl_retina_head import SABLRetinaHead
 from .solo_head import DecoupledSOLOHead, DecoupledSOLOLightHead, SOLOHead
 from .solov2_head import SOLOV2Head
+from .solo_vec_head import SOLOVecHead
 from .ssd_head import SSDHead
 from .tood_head import TOODHead
 from .vfnet_head import VFNetHead
@@ -68,5 +69,5 @@ __all__ = [
     'CenterNetUpdateHead', 'RTMDetHead', 'RTMDetSepBNHead', 'CondInstBboxHead',
     'CondInstMaskHead', 'RTMDetInsHead', 'RTMDetInsSepBNHead',
     'BoxInstBboxHead', 'BoxInstMaskHead', 'ConditionalDETRHead', 'DINOHead',
-    'ATSSVLFusionHead', 'DABDETRHead', 'DDQDETRHead', 'GroundingDINOHead'
+    'ATSSVLFusionHead', 'DABDETRHead', 'DDQDETRHead', 'GroundingDINOHead', 'SOLOVecHead'
 ]
