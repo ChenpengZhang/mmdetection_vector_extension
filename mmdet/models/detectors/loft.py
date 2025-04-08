@@ -1,7 +1,12 @@
+from typing import Dict, List, Tuple, Union
 from mmdet.registry import MODELS
 from mmdet.utils import ConfigType, OptConfigType, OptMultiConfig
+from mmdet.structures import DetDataSample, OptSampleList, SampleList
 from .two_stage import TwoStageDetector
+import torch
 
+ForwardResults = Union[Dict[str, torch.Tensor], List[DetDataSample],
+                       Tuple[torch.Tensor], torch.Tensor]
 
 @MODELS.register_module()
 class LOFT(TwoStageDetector):

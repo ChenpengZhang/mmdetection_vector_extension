@@ -7,7 +7,7 @@
 * The test model is designed for predicting building footprint deviations based on satellite imagery.
 * Execute the following command in the terminal (please modify the file path for the Inference script in advance):
 ```shell
-python vec_demo/inferencer/inferenceBonai.py
+python vec_demo/inferencer/bonai_inferencer.py
 ```
 * If you want to train/test this model locally, you can choose to use one of the two models in vec_demo/configs/ for training. Please change the paths for the training images and annotations before training.
 ```shell

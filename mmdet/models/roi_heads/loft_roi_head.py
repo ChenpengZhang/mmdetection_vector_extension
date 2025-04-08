@@ -20,6 +20,7 @@ class LoftRoIHead(StandardRoIHead):
     def __init__(self,
                 offset_roi_extractor,
                 offset_head,
+                offset_only_mode=False,
                 **kwargs):
         
         super(LoftRoIHead, self).__init__(**kwargs)
@@ -27,6 +28,8 @@ class LoftRoIHead(StandardRoIHead):
         # Initialize offset head, same logic in ./base_roi_head.py
         if offset_head is not None:
             self.init_offset_head(offset_roi_extractor, offset_head)
+
+        self.offset_only_mode = offset_only_mode
 
     # Customize the property of having offset head
     @property
@@ -213,11 +216,14 @@ class LoftRoIHead(StandardRoIHead):
                 rpn_results_list: InstanceList,
                 batch_data_samples: SampleList,
                 rescale: bool = False) -> InstanceList:
-        # 先调用父类方法计算好所有的bbox和mask预测量
-        results_list = super().predict(x, rpn_results_list, batch_data_samples, rescale)
         batch_img_metas = [
             data_samples.metainfo for data_samples in batch_data_samples
         ]
+        # 特殊模式：只预测偏移量
+        if self.offset_only_mode:
+            return self.predict_offset(x, batch_img_metas, rpn_results_list, rescale)
+        # 调用父类方法计算好所有的bbox和mask预测量
+        results_list = super().predict(x, rpn_results_list, batch_data_samples, rescale)
         if self.with_offset:
             results_list = self.predict_offset(x, batch_img_metas, results_list, rescale)
         return results_list
@@ -241,7 +247,9 @@ class LoftRoIHead(StandardRoIHead):
         offset_results = self._offset_forward(x, offset_rois)
         # 计算预测结果和gt的iou
         offset_preds = offset_results['offset_preds']
-        num_offset_rois_per_img = [len(res) for res in results_list]
+        # 判断是否存在foa模块
+        feat_num = self.offset_head.expand_feature_num if hasattr(self.offset_head, "expand_feature_num") else 1
+        num_offset_rois_per_img = [len(res) * feat_num for res in results_list]
         offset_preds = offset_preds.split(num_offset_rois_per_img, 0)
 
         results_list = self.offset_head.predict_by_feat(

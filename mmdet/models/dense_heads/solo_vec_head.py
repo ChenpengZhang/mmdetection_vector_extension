@@ -63,7 +63,7 @@ class SOLOVecHead(SOLOV2Head):
                     norm_cfg=self.norm_cfg,
                     bias=self.norm_cfg is None))
 
-            chn = self.in_channels if i == 0 else self.feat_channels
+            chn = self.in_channels + 2 if i == 0 else self.feat_channels
             self.vec_convs.append(
                 ConvModule(
                     chn,
@@ -133,7 +133,7 @@ class SOLOVecHead(SOLOV2Head):
                 align_corners=False)
 
             cate_feat = kernel_feat[:, :-2, :, :]
-            vec_feat = kernel_feat[:, :-2, :, :]
+            vec_feat = kernel_feat
 
             kernel_feat = kernel_feat.contiguous()
             for i, kernel_conv in enumerate(self.kernel_convs):
@@ -242,11 +242,14 @@ class SOLOVecHead(SOLOV2Head):
                                   hit_gt_bboxes[:, 0]) * self.pos_scale
             pos_h_ranges = 0.5 * (hit_gt_bboxes[:, 3] -
                                   hit_gt_bboxes[:, 1]) * self.pos_scale
+            # Make sure hit_gt_masks has a value
+            valid_mask_flags = hit_gt_masks.sum(dim=-1).sum(dim=-1) > 0
 
-            for gt_mask, gt_label, gt_offset, pos_h_range, pos_w_range in \
+            for gt_mask, gt_label, gt_offset, pos_h_range, pos_w_range, \
+                    valid_mask_flag in \
                     zip(hit_gt_masks, hit_gt_labels, hit_gt_offsets, pos_h_ranges,
-                        pos_w_ranges):
-                if gt_mask.sum() == 0:
+                        pos_w_ranges, valid_mask_flags):
+                if not valid_mask_flag:
                     continue
                 upsampled_size = (featmap_sizes[0] * self.mask_stride,
                                   featmap_sizes[1] * self.mask_stride)

@@ -7,7 +7,7 @@
 * 测试模型为基于BONAI的对卫星影像而言的建筑脚印偏离预测。
 * 在命令行中执行（执行之前请先修改脚本内部的Inference文件路径为自己的）：
 ```shell
-python vec_demo/inferencer/inferenceBonai.py
+python vec_demo/inferencer/bonai_inferencer.py
 ```
 * 如果你想要在本地训练/测试这个模型，则可以选择使用vec_demo/configs/中的两个模型进行训练，在训练前也请将训练图片和标注的路径改为自己的。
 ```shell
